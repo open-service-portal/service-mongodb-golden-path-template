@@ -152,7 +152,6 @@ spec:
           - infrastructure-as-code
           - golden-path
           - kubernetes
-        visibility: public
     
     # Step 4: Register the system
     - id: register
