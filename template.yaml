@@ -133,16 +133,7 @@ spec:
       name: "📤 Publishing to GitHub"
       action: publish:github
       input:
-        description: |
-          MongoDB Golden Path Stack: ${{ parameters.name }}
-          
-          This repository contains the complete infrastructure-as-code for:
-          - MongoDB database (${{ parameters.storageSize }}GB)
-          - Kubernetes cluster (3 nodes)
-          - DNS configuration
-          - Network security rules
-          
-          Managed by Crossplane | Owner: ${{ parameters.owner }}
+        description: "MongoDB Golden Path Stack: ${{ parameters.name }} - Complete infrastructure-as-code for MongoDB (${{ parameters.storageSize }}GB), Kubernetes cluster, DNS, and security rules. Managed by Crossplane."
         repoUrl: ${{ parameters.repoUrl }}
         defaultBranch: main
         gitCommitMessage: "feat: initialize MongoDB golden path stack ${{ parameters.name }}"
