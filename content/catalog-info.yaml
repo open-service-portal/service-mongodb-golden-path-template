@@ -1,17 +1,4 @@
 apiVersion: backstage.io/v1alpha1
-kind: Location
-metadata:
-  name: ${{ values.name }}-${{ values.suffix }}-stack-location
-  description: MongoDB Golden Path Stack Components
-spec:
-  type: url
-  targets:
-    - ./${{ values.name }}-system.yaml
-    - ./${{ values.name }}-mongodb.yaml
-    - ./${{ values.name }}-cluster.yaml
-    - ./${{ values.name }}-dns.yaml
----
-apiVersion: backstage.io/v1alpha1
 kind: System
 metadata:
   name: ${{ values.name }}-${{ values.suffix }}-stack
