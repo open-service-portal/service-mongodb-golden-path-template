@@ -87,9 +87,10 @@ spec:
     # Step 0: Generate unique suffix for resources
     - id: generate-suffix
       name: "🎲 Generating Unique Resource Identifier"
-      action: roadiehq:utils:generate
+      action: portal:utils:generateId
       input:
         length: 8
+        type: hex
         
     # Step 1: Show what we're creating
     - id: log-plan
@@ -118,9 +119,9 @@ spec:
           storageSize: ${{ parameters.storageSize }}
           lifecycle: ${{ parameters.lifecycle }}
           owner: ${{ parameters.owner }}
-          repoUrl: github.com?owner=open-service-portal&repo=${{ parameters.name }}-${{ steps['generate-suffix'].output.generatedString }}
+          repoUrl: github.com?owner=open-service-portal&repo=${{ parameters.name }}-${{ steps['generate-suffix'].output.id }}
+          suffix: ${{ steps['generate-suffix'].output.id }}
           cloudProvider: azure  # Default for golden path
-          suffix: ${{ steps['generate-suffix'].output.generatedString }}
     
     # Step 3: Publish to GitHub
     - id: publish
@@ -128,9 +129,9 @@ spec:
       action: publish:github
       input:
         description: "MongoDB Golden Path Stack: ${{ parameters.name }} - Complete infrastructure-as-code for MongoDB (${{ parameters.storageSize }}GB), Kubernetes cluster, DNS, and security rules. Managed by Crossplane."
-        repoUrl: github.com?owner=open-service-portal&repo=${{ parameters.name }}-${{ steps['generate-suffix'].output.generatedString }}
+        repoUrl: github.com?owner=open-service-portal&repo=${{ parameters.name }}
         defaultBranch: main
-        gitCommitMessage: "feat: initialize MongoDB golden path stack ${{ parameters.name }}-${{ steps['generate-suffix'].output.generatedString }}"
+        gitCommitMessage: "feat: initialize MongoDB golden path stack ${{ parameters.name }}-${{ steps['generate-suffix'].output.id }}"
         topics:
           - mongodb
           - crossplane
