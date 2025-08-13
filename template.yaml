@@ -1,0 +1,212 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: service-mongodb-golden-path-template
+  title: "🚀 MongoDB Golden Path (Complete Stack)"
+  description: |
+    The recommended way to provision MongoDB with all dependencies.
+    This template automatically creates: Kubernetes cluster, DNS records, 
+    firewall rules, and the MongoDB database - everything you need in one click!
+  tags:
+    - recommended
+    - golden-path
+    - mongodb
+    - crossplane
+    - infrastructure
+    - stack
+spec:
+  owner: group:open-service-portal
+  type: service
+  
+  parameters:
+    - title: "🎯 Quick Setup - Just 3 Questions!"
+      description: "We'll handle all the infrastructure complexity for you"
+      required:
+        - name
+      properties:
+        name:
+          title: Stack Name
+          type: string
+          description: A name for your complete MongoDB stack (lowercase, no spaces)
+          pattern: '^[a-z]([-a-z0-9]*[a-z0-9])?$'
+          ui:autofocus: true
+          ui:help: "Example: 'my-app' will create: my-app-mongodb, my-app-cluster, my-app-dns"
+        
+        storageSize:
+          title: Storage Size (GB)
+          type: integer
+          description: How much storage do you need for your MongoDB?
+          default: 10
+          enum:
+            - 10
+            - 25
+            - 50
+            - 100
+          enumNames:
+            - "10 GB - Development ($10/month)"
+            - "25 GB - Small Production ($25/month)"
+            - "50 GB - Medium Production ($50/month)"
+            - "100 GB - Large Production ($100/month)"
+        
+        lifecycle:
+          title: Environment
+          type: string
+          description: What kind of environment is this?
+          default: experimental
+          enum:
+            - experimental
+            - development
+            - staging
+            - production
+          enumNames:
+            - "🧪 Experimental - Just trying things out"
+            - "💻 Development - Active development"
+            - "🎭 Staging - Pre-production testing"
+            - "🚀 Production - Live system"
+    
+    - title: "📋 Administrative Details"
+      required:
+        - owner
+        - repoUrl
+      properties:
+        owner:
+          title: Team Owner
+          type: string
+          description: Which team will own this MongoDB stack?
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        
+        namespace:
+          title: Kubernetes Namespace
+          type: string
+          description: Where should we deploy this? (leave empty for 'default')
+          default: default
+        
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+            allowedOwners:
+              - open-service-portal
+            requestUserCredentials:
+              secretsKey: USER_OAUTH_TOKEN
+          ui:help: "We'll create a repository with all your infrastructure configuration"
+  
+  steps:
+    # Step 1: Show what we're creating
+    - id: log-plan
+      name: "📝 Planning Your Infrastructure"
+      action: debug:log
+      input:
+        message: |
+          Creating MongoDB Golden Path Stack: ${{ parameters.name }}
+          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          ✅ Kubernetes Cluster (3 nodes, medium size)
+          ✅ MongoDB Database (${{ parameters.storageSize }}GB storage)
+          ✅ DNS Record for stable access
+          ✅ Firewall rules for security
+          ✅ Complete Backstage catalog registration
+          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    # Step 2: Fetch all templates
+    - id: fetch-base
+      name: "🏗️ Preparing Infrastructure Templates"
+      action: fetch:template
+      input:
+        url: ./content
+        values:
+          name: ${{ parameters.name }}
+          namespace: ${{ parameters.namespace }}
+          storageSize: ${{ parameters.storageSize }}
+          lifecycle: ${{ parameters.lifecycle }}
+          owner: ${{ parameters.owner }}
+          repoUrl: ${{ parameters.repoUrl }}
+          cloudProvider: azure  # Default for golden path
+    
+    # Step 3: Publish to GitHub
+    - id: publish
+      name: "📤 Publishing to GitHub"
+      action: publish:github
+      input:
+        description: |
+          MongoDB Golden Path Stack: ${{ parameters.name }}
+          
+          This repository contains the complete infrastructure-as-code for:
+          - MongoDB database (${{ parameters.storageSize }}GB)
+          - Kubernetes cluster (3 nodes)
+          - DNS configuration
+          - Network security rules
+          
+          Managed by Crossplane | Owner: ${{ parameters.owner }}
+        repoUrl: ${{ parameters.repoUrl }}
+        defaultBranch: main
+        gitCommitMessage: "feat: initialize MongoDB golden path stack ${{ parameters.name }}"
+        topics:
+          - mongodb
+          - crossplane
+          - infrastructure-as-code
+          - golden-path
+          - kubernetes
+        visibility: public
+    
+    # Step 4: Register the system
+    - id: register
+      name: "📚 Registering in Service Catalog"
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+    
+    # Step 5: Log next steps
+    - id: log-next-steps
+      name: "✅ Setup Complete!"
+      action: debug:log
+      input:
+        message: |
+          Your MongoDB Golden Path Stack is ready!
+          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          
+          Next steps:
+          1. Apply the Crossplane resources:
+             kubectl apply -f ${{ steps['publish'].output.remoteUrl }}/example.yaml
+          
+          2. Watch the provisioning:
+             kubectl get mongodb ${{ parameters.name }} -n ${{ parameters.namespace }} -w
+          
+          3. Get your connection string (once ready):
+             kubectl get mongodb ${{ parameters.name }} -n ${{ parameters.namespace }} -o jsonpath='{.status.connString}'
+          
+          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  
+  output:
+    text:
+      - title: "🎉 Congratulations!"
+        content: |
+          Your MongoDB Golden Path Stack has been created successfully!
+          
+          **What we created for you:**
+          - ✅ Complete infrastructure repository
+          - ✅ MongoDB with ${{ parameters.storageSize }}GB storage
+          - ✅ 3-node Kubernetes cluster
+          - ✅ DNS configuration
+          - ✅ Security rules
+          - ✅ Full catalog registration
+    
+    links:
+      - title: "📁 Repository"
+        url: ${{ steps['publish'].output.remoteUrl }}
+        icon: github
+      - title: "📊 System Overview"
+        icon: dashboard
+        entityRef: ${{ steps['register'].output.entityRef }}
+      - title: "📚 Documentation"
+        url: ${{ steps['publish'].output.remoteUrl }}/blob/main/README.md
+        icon: docs
+      - title: "🔧 Apply Infrastructure"
+        url: ${{ steps['publish'].output.remoteUrl }}/blob/main/example.yaml
+        icon: deploy

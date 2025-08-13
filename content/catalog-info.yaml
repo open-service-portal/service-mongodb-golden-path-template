@@ -1,0 +1,87 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: ${{ values.name }}-stack-location
+  description: MongoDB Golden Path Stack Components
+spec:
+  type: url
+  targets:
+    - ./${{ values.name }}-system.yaml
+    - ./${{ values.name }}-mongodb.yaml
+    - ./${{ values.name }}-cluster.yaml
+    - ./${{ values.name }}-dns.yaml
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: ${{ values.name }}-stack
+  title: ${{ values.name | title }} MongoDB Stack
+  description: Complete MongoDB infrastructure stack including cluster, DNS, and database
+  tags:
+    - mongodb
+    - infrastructure
+    - golden-path
+  annotations:
+    backstage.io/managed-by-location: url:${{ values.repoUrl }}
+spec:
+  owner: ${{ values.owner | default('group:platform') | dump }}
+  domain: platform-services
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: ${{ values.name }}-mongodb
+  title: ${{ values.name | title }} MongoDB Database
+  description: MongoDB database instance
+  annotations:
+    backstage.io/managed-by-location: url:${{ values.repoUrl }}
+  tags:
+    - database
+    - mongodb
+    - crossplane
+spec:
+  type: database
+  owner: ${{ values.owner | default('group:platform') | dump }}
+  lifecycle: ${{ values.lifecycle | default('experimental') }}
+  system: ${{ values.name }}-stack
+  dependsOn:
+    - resource:default/${{ values.name }}-cluster
+    - resource:default/${{ values.name }}-dns
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: ${{ values.name }}-cluster
+  title: ${{ values.name | title }} Kubernetes Cluster
+  description: Kubernetes cluster for MongoDB
+  annotations:
+    backstage.io/managed-by-location: url:${{ values.repoUrl }}
+  tags:
+    - kubernetes
+    - infrastructure
+    - crossplane
+spec:
+  type: kubernetes-cluster
+  owner: ${{ values.owner | default('group:platform') | dump }}
+  lifecycle: ${{ values.lifecycle | default('experimental') }}
+  system: ${{ values.name }}-stack
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: ${{ values.name }}-dns
+  title: ${{ values.name | title }} DNS Record
+  description: DNS record for MongoDB access
+  annotations:
+    backstage.io/managed-by-location: url:${{ values.repoUrl }}
+  tags:
+    - dns
+    - networking
+    - crossplane
+spec:
+  type: dns-record
+  owner: ${{ values.owner | default('group:platform') | dump }}
+  lifecycle: ${{ values.lifecycle | default('experimental') }}
+  system: ${{ values.name }}-stack
+  dependsOn:
+    - resource:default/${{ values.name }}-cluster

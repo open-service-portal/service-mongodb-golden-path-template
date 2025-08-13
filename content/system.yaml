@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: ${{ values.name }}-stack
+  description: Complete MongoDB stack with cluster, DNS, and database
+  annotations:
+    backstage.io/managed-by-location: url:${{ values.repoUrl }}
+spec:
+  owner: ${{ values.owner | default('group:platform') | dump }}
+  domain: platform-services

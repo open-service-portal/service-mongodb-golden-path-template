@@ -1,0 +1,21 @@
+---
+# MongoDB Golden Path - Single claim creates entire stack
+apiVersion: platform.example.com/v1alpha1
+kind: MongoDB
+metadata:
+  name: ${{ values.name | dump }}
+  namespace: ${{ values.namespace | default('default') | dump }}
+  annotations:
+    backstage.io/golden-path: "true"
+    backstage.io/stack-components: "cluster,dns,mongodb"
+spec:
+  storageSize: ${{ values.storageSize | default(10) }}
+---
+# This single MongoDB claim will automatically provision:
+# 1. A Kubernetes cluster (3 nodes, medium size)
+# 2. A DNS record for database access
+# 3. The MongoDB instance itself
+# 4. All necessary networking and configuration
+#
+# This is the "Golden Path" - the recommended way to provision
+# a production-ready MongoDB database with all dependencies.
