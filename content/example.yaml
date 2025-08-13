@@ -1,9 +1,10 @@
 ---
 # MongoDB Golden Path - Single claim creates entire stack
+# Instance ID: ${{ values.suffix }}
 apiVersion: platform.example.com/v1alpha1
 kind: MongoDB
 metadata:
-  name: ${{ values.name | dump }}
+  name: ${{ values.name }}-${{ values.suffix }}
   namespace: ${{ values.namespace | default('default') | dump }}
   annotations:
     backstage.io/golden-path: "true"

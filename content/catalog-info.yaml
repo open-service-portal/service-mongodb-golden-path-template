@@ -1,7 +1,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Location
 metadata:
-  name: ${{ values.name }}-stack-location
+  name: ${{ values.name }}-${{ values.suffix }}-stack-location
   description: MongoDB Golden Path Stack Components
 spec:
   type: url
@@ -14,7 +14,7 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: System
 metadata:
-  name: ${{ values.name }}-stack
+  name: ${{ values.name }}-${{ values.suffix }}-stack
   title: ${{ values.name | title }} MongoDB Stack
   description: Complete MongoDB infrastructure stack including cluster, DNS, and database
   tags:
@@ -30,7 +30,7 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
-  name: ${{ values.name }}-mongodb
+  name: ${{ values.name }}-${{ values.suffix }}-mongodb
   title: ${{ values.name | title }} MongoDB Database
   description: MongoDB database instance
   annotations:
@@ -43,15 +43,15 @@ spec:
   type: database
   owner: ${{ values.owner | default('group:platform') | dump }}
   lifecycle: ${{ values.lifecycle | default('experimental') }}
-  system: ${{ values.name }}-stack
+  system: ${{ values.name }}-${{ values.suffix }}-stack
   dependsOn:
-    - resource:default/${{ values.name }}-cluster
-    - resource:default/${{ values.name }}-dns
+    - resource:default/${{ values.name }}-${{ values.suffix }}-cluster
+    - resource:default/${{ values.name }}-${{ values.suffix }}-dns
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
-  name: ${{ values.name }}-cluster
+  name: ${{ values.name }}-${{ values.suffix }}-cluster
   title: ${{ values.name | title }} Kubernetes Cluster
   description: Kubernetes cluster for MongoDB
   annotations:
@@ -64,12 +64,12 @@ spec:
   type: kubernetes-cluster
   owner: ${{ values.owner | default('group:platform') | dump }}
   lifecycle: ${{ values.lifecycle | default('experimental') }}
-  system: ${{ values.name }}-stack
+  system: ${{ values.name }}-${{ values.suffix }}-stack
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
-  name: ${{ values.name }}-dns
+  name: ${{ values.name }}-${{ values.suffix }}-dns
   title: ${{ values.name | title }} DNS Record
   description: DNS record for MongoDB access
   annotations:
@@ -82,6 +82,6 @@ spec:
   type: dns-record
   owner: ${{ values.owner | default('group:platform') | dump }}
   lifecycle: ${{ values.lifecycle | default('experimental') }}
-  system: ${{ values.name }}-stack
+  system: ${{ values.name }}-${{ values.suffix }}-stack
   dependsOn:
-    - resource:default/${{ values.name }}-cluster
+    - resource:default/${{ values.name }}-${{ values.suffix }}-cluster

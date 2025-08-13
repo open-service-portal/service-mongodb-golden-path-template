@@ -95,9 +95,16 @@ spec:
               - open-service-portal
             requestUserCredentials:
               secretsKey: USER_OAUTH_TOKEN
-          ui:help: "We'll create a repository with all your infrastructure configuration"
+          ui:help: "Repository name will be: {name}-stack (e.g., mstingl-mongodb3-stack)"
   
   steps:
+    # Step 0: Generate unique suffix for resources
+    - id: generate-suffix
+      name: "🎲 Generating Unique Resource Identifier"
+      action: roadiehq:utils:generate
+      input:
+        length: 8
+        
     # Step 1: Show what we're creating
     - id: log-plan
       name: "📝 Planning Your Infrastructure"
@@ -127,6 +134,7 @@ spec:
           owner: ${{ parameters.owner }}
           repoUrl: ${{ parameters.repoUrl }}
           cloudProvider: azure  # Default for golden path
+          suffix: ${{ steps['generate-suffix'].output.generatedString }}
     
     # Step 3: Publish to GitHub
     - id: publish
