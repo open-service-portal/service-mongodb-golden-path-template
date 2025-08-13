@@ -67,7 +67,6 @@ spec:
     - title: "📋 Administrative Details"
       required:
         - owner
-        - repoUrl
       properties:
         owner:
           title: Team Owner
@@ -83,19 +82,6 @@ spec:
           type: string
           description: Where should we deploy this? (leave empty for 'default')
           default: default
-        
-        repoUrl:
-          title: Repository Location
-          type: string
-          ui:field: RepoUrlPicker
-          ui:options:
-            allowedHosts:
-              - github.com
-            allowedOwners:
-              - open-service-portal
-            requestUserCredentials:
-              secretsKey: USER_OAUTH_TOKEN
-          ui:help: "Repository name will be: {name}-stack (e.g., mstingl-mongodb3-stack)"
   
   steps:
     # Step 0: Generate unique suffix for resources
@@ -132,7 +118,7 @@ spec:
           storageSize: ${{ parameters.storageSize }}
           lifecycle: ${{ parameters.lifecycle }}
           owner: ${{ parameters.owner }}
-          repoUrl: ${{ parameters.repoUrl }}
+          repoUrl: github.com?owner=open-service-portal&repo=${{ parameters.name }}-${{ steps['generate-suffix'].output.generatedString }}
           cloudProvider: azure  # Default for golden path
           suffix: ${{ steps['generate-suffix'].output.generatedString }}
     
@@ -142,9 +128,9 @@ spec:
       action: publish:github
       input:
         description: "MongoDB Golden Path Stack: ${{ parameters.name }} - Complete infrastructure-as-code for MongoDB (${{ parameters.storageSize }}GB), Kubernetes cluster, DNS, and security rules. Managed by Crossplane."
-        repoUrl: ${{ parameters.repoUrl }}
+        repoUrl: github.com?owner=open-service-portal&repo=${{ parameters.name }}-${{ steps['generate-suffix'].output.generatedString }}
         defaultBranch: main
-        gitCommitMessage: "feat: initialize MongoDB golden path stack ${{ parameters.name }}"
+        gitCommitMessage: "feat: initialize MongoDB golden path stack ${{ parameters.name }}-${{ steps['generate-suffix'].output.generatedString }}"
         topics:
           - mongodb
           - crossplane
