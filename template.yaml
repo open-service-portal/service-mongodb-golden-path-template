@@ -8,7 +8,7 @@ metadata:
     This template automatically creates: Kubernetes cluster, DNS records, 
     firewall rules, and the MongoDB database - everything you need in one click!
   tags:
-    - recommended
+    - source:github-import    - recommended
     - golden-path
     - mongodb
     - crossplane
